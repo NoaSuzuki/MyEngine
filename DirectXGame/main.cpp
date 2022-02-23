@@ -22,6 +22,7 @@
 #pragma comment(lib,"dxguid.lib")
 #include"Object3d.h"
 #include"Model.h"
+#include"SoundManager.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -61,6 +62,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	dxCommon = new DirectXCommon();
 	dxCommon->Initialize(winApp);
 
+	//サウンド
+	SoundManager* soundManager = nullptr;
 
 	MSG msg{};
 	//でバッグレイヤーのやつ
@@ -111,6 +114,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//入力の初期化
 	input = new Input();
 	input->Initialize(winApp);
+
+	//サウンド初期化
+	soundManager = new SoundManager();
+	soundManager->Initialize();
+	//if (FAILED(InitialazeSound())) {
+	//	assert(0);
+	//	return 1;
+	//}
+
 #pragma region//ループ処理
 	while (true) {
 #pragma region//更新処理
@@ -118,6 +130,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		if (winApp->ProcessMessage()) {
 			break;
 		}
+
+		if (input->TriggerKey(DIK_0))
+		{
+			soundManager->PlayWave("Resources/Alarm01.wav");
+		}
+
+
 		//キーの更新
 		input->Update();
 		object3d_1->Update();
