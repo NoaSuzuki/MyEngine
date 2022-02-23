@@ -4,6 +4,14 @@
 
 #pragma comment(lib,"xaudio2.lib")
 
+SoundManager::~SoundManager()
+{
+	//読み込み済みサウンドの波形データを解放
+	for (auto& pair : soundDatas) {
+		delete pair.second.pBuffer;
+	}
+}
+
 void SoundManager::Initialize()
 {
 	HRESULT result;
@@ -17,8 +25,10 @@ void SoundManager::Initialize()
 
 }
 
-void SoundManager::PlayWave(const char* filename)
+void SoundManager::LoadWave(int number,const char* filename)
 {
+	SoundData soundData{};
+
 	HRESULT result;
 	// ファイルストリーム
 	std::ifstream file;
@@ -42,29 +52,35 @@ void SoundManager::PlayWave(const char* filename)
 	ChunkHeader data;
 	file.read((char*)&data, sizeof(data));
 	// Dataチャンクのデータ部（波形データ）の読み込み
-	char* pBuffer = new char[data.size];
-	file.read(pBuffer, data.size);
+	soundData.pBuffer = new char[data.size];
+	file.read(soundData.pBuffer, data.size);
+	//波形データのサイズを記録
+	soundData.datasize = data.size;
 	// Waveファイルを閉じる
 	file.close();
-
-	WAVEFORMATEX wfex{};
 	// 波形フォーマットの設定
-	memcpy(&wfex, &format.fmt, sizeof(format.fmt));
-	wfex.wBitsPerSample = format.fmt.nBlockAlign * 8 / format.fmt.nChannels;
+	memcpy(&soundData.wfex, &format.fmt, sizeof(format.fmt));
+	soundData.wfex.wBitsPerSample = format.fmt.nBlockAlign * 8 / format.fmt.nChannels;
+
+	//連想配列に要素を追加
+	soundDatas.insert(std::make_pair(number, soundData));
+}
+
+void SoundManager::PlayWave(int number)
+{
+	SoundData& soundData = soundDatas[number];
+	HRESULT result;
+
 	// 波形フォーマットを元にSourceVoiceの生成
 	IXAudio2SourceVoice* pSourceVoice = nullptr;
-	result = xAudio2->CreateSourceVoice(&pSourceVoice, &wfex, 0, 2.0f, &voiceCallback);
-	if FAILED(result) {
-		delete[] pBuffer;
-		assert(0);
-		return;
-	}
+	result = xAudio2->CreateSourceVoice(&pSourceVoice, &soundData.wfex, 0, 2.0f, nullptr);
+	assert(SUCCEEDED(result));
 	// 再生する波形データの設定
 	XAUDIO2_BUFFER buf{};
-	buf.pAudioData = (BYTE*)pBuffer;
-	buf.pContext = pBuffer;
+	buf.pAudioData = (BYTE*)soundData.pBuffer;
+	buf.pContext = soundData.pBuffer;
 	buf.Flags = XAUDIO2_END_OF_STREAM;
-	buf.AudioBytes = data.size;
+	buf.AudioBytes = soundData.datasize;
 
 	// 波形データの再生
 	result = pSourceVoice->SubmitSourceBuffer(&buf);

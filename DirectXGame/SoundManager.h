@@ -4,6 +4,7 @@
 #include <wrl.h>
 #include <d3d12.h>
 #include <DirectXMath.h>
+#include<map>
 
 class SoundManager
 {
@@ -11,28 +12,10 @@ public:
 	//namespace省略
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+	template<class T1, class T2> using map = std::map<T1, T2>;
+
 public:
-	//オーディオのコールバック
-	class XAudio2VoiceCallBack : public IXAudio2VoiceCallback {
-	public:
-		void OnVoiceProcessingPassStart(UINT32 BytesRequired) {};
-		// ボイス処理パスの終了時
-		STDMETHOD_(void, OnVoiceProcessingPassEnd) (THIS) {};
-		//バッファストリームの再生終了時
-		STDMETHOD_(void, OnStreamEnd) (THIS) {};
-
-		//バッファの使用次
-		STDMETHOD_(void, OnBufferStart) (THIS_ void* pBufferContext) {};
-		//バッファの末尾に達したとき
-		STDMETHOD_(void, OnBufferEnd) (THIS_ void* pBufferContext) {
-			delete[] pBufferContext;//バッファ開放
-		};
-		//ループの達したとき
-		STDMETHOD_(void, OnLoopEnd) (THIS_ void* pBufferContext) {};
-		//ボイスのエラー時
-		STDMETHOD_(void, OnVoiceError) (THIS_ void* pBufferContext, HRESULT Error) {};
-	};
-
+	
 	//チャンクヘッダ
 	struct ChunkHeader
 	{
@@ -54,20 +37,34 @@ public:
 		WAVEFORMAT fmt;//波形フォーマット
 	};
 
-public:
+	struct SoundData
+	{
+		WAVEFORMATEX wfex{};//波形フォーマット
+		char* pBuffer;//波形データ
+		unsigned int datasize;//波形データのサイズ
+	};
 
+public:
+	//デスクトラクタ
+	~SoundManager();
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	void Initialize();
-
+	/// <summary>
+	/// サウンド読み込み
+	/// </summary>
+	/// <param name="filename"></param>
+	void LoadWave(int number ,const char* filename);
+	
 	//サウンドの再生
-	void PlayWave(const char* filename);
+	void PlayWave(int number);
 private:
 	//xAudio2のインスタンス
 	ComPtr<IXAudio2> xAudio2;
 	//マスターボイス
 	IXAudio2MasteringVoice* masterVoice;
-	XAudio2VoiceCallBack voiceCallback;
+	//波形データの連想配列
+	map<int, SoundData>soundDatas;
 };
 

@@ -122,7 +122,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//	assert(0);
 	//	return 1;
 	//}
-
+	soundManager->LoadWave(0, "Resources/Alarm01.wav");
 #pragma region//ループ処理
 	while (true) {
 #pragma region//更新処理
@@ -133,7 +133,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		if (input->TriggerKey(DIK_0))
 		{
-			soundManager->PlayWave("Resources/Alarm01.wav");
+		
+			soundManager->PlayWave(0);
 		}
 
 
@@ -160,6 +161,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	winApp->Finalize();
 
 	//入力開放
+	delete soundManager;
 	delete input;
 	delete winApp;
 	delete dxCommon;
