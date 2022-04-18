@@ -56,6 +56,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Object3d* object3d_1 = nullptr;
 	Object3d* object3d_2 = nullptr;
 	Object3d* object3d_3 = nullptr;
+
 	winApp = new WinApp();
 	winApp->Initialize();
 	//DirectXの初期化
@@ -85,13 +86,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//モデルデータ読み込み
 	Model* model_1 = Model::LordFromOBJ("ground");
 	Model* model_2 = Model::LordFromOBJ("triangle_mat");
-
+	Model* model_3= Model::LordFromOBJ("Player");
 #pragma endregion
 
 	//3Dオブジェクト生成
 	object3d_1 = Object3d::Create();
 	object3d_2 = Object3d::Create();
 	object3d_3 = Object3d::Create();
+
 
 	object3d_1->SetModel(model_1);
 	object3d_2->SetModel(model_2);
@@ -103,25 +105,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	object3d_2->SetScale({ 20,20,20});
 	object3d_3->SetScale({ 20,20,20 });
-	
+
 	//object3d->SetScale({ 20,20,20 });
 
 
 
 
-#pragma region//キー処理
-	//キー処理
+#pragma region//初期化
 	//入力の初期化
 	input = new Input();
 	input->Initialize(winApp);
-
 	//サウンド初期化
 	soundManager = new SoundManager();
 	soundManager->Initialize();
-	//if (FAILED(InitialazeSound())) {
-	//	assert(0);
-	//	return 1;
-	//}
+
+	//サウンド読み込み
 	soundManager->LoadWave(0, "Resources/Alarm01.wav");
 #pragma region//ループ処理
 	while (true) {
@@ -133,16 +131,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		if (input->TriggerKey(DIK_0))
 		{
-		
 			soundManager->PlayWave(0);
 		}
 
+		if (input->PushKey(DIK_1)) {
+			object3d_2->SetModel(model_3);
+			object3d_3->SetModel(model_3);
+			object3d_2->SetScale({ 2,2,2 });
+			object3d_3->SetScale({ 2,2,2 });
+		}
+		else {
+			object3d_2->SetModel(model_2);
+			object3d_3->SetModel(model_2);
+			object3d_2->SetScale({ 20,20,20 });
+			object3d_3->SetScale({ 20,20,20 });
+		}
 
 		//キーの更新
 		input->Update();
 		object3d_1->Update();
 		object3d_2->Update();
 		object3d_3->Update();
+
 #pragma region//タイトル
 
 #pragma endregion
@@ -150,6 +160,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		dxCommon->PreDraw();
 		Object3d::PreDraw(dxCommon->GetCmdList());
 		object3d_1->Draw();
+
+
 		object3d_2->Draw();
 		object3d_3->Draw();
 		Object3d::PostDraw();
@@ -170,6 +182,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	delete object3d_3;
 	delete model_1;
 	delete model_2;
+	delete model_3;
 
 	winApp = nullptr;
 	return 0;
