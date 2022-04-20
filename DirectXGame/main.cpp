@@ -78,7 +78,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region//ビュー行列
 	//ビュー変換行列
 	XMMATRIX matview;
-	XMFLOAT3 eye(0, 0, -100);
+	XMFLOAT3 eye(0, 0, -50);
 	XMFLOAT3 target(0, 0, 0);
 	XMFLOAT3 up(0, 1, 0);
 	matview = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
@@ -86,7 +86,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//モデルデータ読み込み
 	Model* model_1 = Model::LordFromOBJ("ground");
 	Model* model_2 = Model::LordFromOBJ("triangle_mat");
-	Model* model_3= Model::LordFromOBJ("Player");
+	Model* model_3 = Model::LordFromOBJ("Player");
 #pragma endregion
 
 	//3Dオブジェクト生成
@@ -100,15 +100,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	object3d_3->SetModel(model_2);
 
 	object3d_1->SetPosition({ -5,0,-5 });
-	object3d_2->SetPosition({ -5,0,-5 });
+
 	object3d_3->SetPosition({ +5,0,+5 });
 
-	object3d_2->SetScale({ 20,20,20});
+	object3d_2->SetScale({ 4,4,4 });
 	object3d_3->SetScale({ 20,20,20 });
 
 	//object3d->SetScale({ 20,20,20 });
 
-
+	float vy = 0;//y方向の速度
+	float gravity = -4.8 / 60.0f;//重力
+	float y = 150.0f;//高さ
 
 
 #pragma region//初期化
@@ -128,30 +130,39 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		if (winApp->ProcessMessage()) {
 			break;
 		}
+		//更新処理
+		vy += gravity;
+		y += vy;
 
-		if (input->TriggerKey(DIK_0))
-		{
-			soundManager->PlayWave(0);
-		}
 
-		if (input->PushKey(DIK_1)) {
-			object3d_2->SetModel(model_3);
-			object3d_3->SetModel(model_3);
-			object3d_2->SetScale({ 2,2,2 });
-			object3d_3->SetScale({ 2,2,2 });
+		if (input->PushKey(DIK_R)) {
+			vy = 0;//y方向の速度
+			gravity = -3.8 / 60.0f;//重力
+			y = 150.0f;//高さ
 		}
-		else {
-			object3d_2->SetModel(model_2);
-			object3d_3->SetModel(model_2);
+		/*	if (input->TriggerKey(DIK_0))
+			{
+				soundManager->PlayWave(0);
+			}*/
+
+			/*	if (input->PushKey(DIK_1)) {
+					object3d_2->SetModel(model_3);
+					object3d_3->SetModel(model_3);
+					object3d_2->SetScale({ 2,2,2 });
+					object3d_3->SetScale({ 2,2,2 });
+				}
+				else {*/
+		object3d_2->SetModel(model_2);
+		/*	object3d_3->SetModel(model_2);
 			object3d_2->SetScale({ 20,20,20 });
 			object3d_3->SetScale({ 20,20,20 });
-		}
-
+		}*/
+		object3d_2->SetPosition({ 0,y,0 });
 		//キーの更新
 		input->Update();
 		object3d_1->Update();
 		object3d_2->Update();
-		object3d_3->Update();
+		//object3d_3->Update();
 
 #pragma region//タイトル
 
@@ -159,7 +170,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//毎フレーム処理
 		dxCommon->PreDraw();
 		Object3d::PreDraw(dxCommon->GetCmdList());
-		object3d_1->Draw();
+		/*	object3d_1->Draw();*/
 
 
 		object3d_2->Draw();
