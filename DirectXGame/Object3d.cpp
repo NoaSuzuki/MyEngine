@@ -291,7 +291,7 @@ bool Object3d::InitializeGraphicsPipeline()
 	if (FAILED(result)) {
 		return result;
 	}
-
+	
 	return true;
 }
 

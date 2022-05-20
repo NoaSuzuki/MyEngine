@@ -23,6 +23,8 @@
 #include"Object3d.h"
 #include"Model.h"
 #include"SoundManager.h"
+#include"Texture.h"
+
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -146,6 +148,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			object3d_2->SetScale({ 20,20,20 });
 			object3d_3->SetScale({ 20,20,20 });
 		}
+
+
 
 		//キーの更新
 		input->Update();

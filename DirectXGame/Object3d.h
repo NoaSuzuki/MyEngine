@@ -84,10 +84,10 @@ public: // 静的メンバ関数
 	/// <returns></returns>
 	static Object3d* Create();
 
-	/// <summary>
-	/// 視点座標の取得
-	/// </summary>
-	/// <returns>座標</returns>
+	 //<summary>
+	 //視点座標の取得
+	 //</summary>
+	 //<returns>座標</returns>
 	static const XMFLOAT3& GetEye() { return eye; }
 
 	/// <summary>
